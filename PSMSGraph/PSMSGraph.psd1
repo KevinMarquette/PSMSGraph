@@ -2,7 +2,7 @@
 	===========================================================================
 	 Created with: 	SAPIEN Technologies, Inc., PowerShell Studio 2017 v5.4.135
 	 Created on:   	2/8/2017 7:14 AM
-     Last Modified: 2/16/2017
+     Last Modified: 3/01/2017
 	 Created by:   	Mark Kraus
 	 Organization: 	Mitel
 	 Filename:     	PSMSGraph.psd1
@@ -17,10 +17,10 @@
 @{
 	
 	# Script module or binary module file associated with this manifest
-	ModuleToProcess = 'PSMSGraph.psm1'
+    RootModule = 'PSMSGraph.psm1'
 	
 	# Version number of this module.
-	ModuleVersion = '1.0.3.0'
+	ModuleVersion = '1.0.26.43'
 	
 	# ID used to uniquely identify this module
 	GUID = '15978dcc-d5ad-4024-ab2a-28bdf946ece7'
@@ -77,46 +77,19 @@
 	
 	# Modules to import as nested modules of the module specified in
 	# ModuleToProcess
-    NestedModules = @(
-        #Application
-        'Public\New-GraphApplication.ps1'
-        'Public\Export-GraphApplication.ps1'
-        'Public\Import-GraphApplication.ps1'
-        #OAuth
-        'Public\Get-GraphOauthAuthorizationCode.ps1'
-        'Public\Get-GraphOauthAccessToken.ps1'
-        'Public\Export-GraphOauthAccessToken.ps1'
-        'Public\New-GraphOauthAccessToken.ps1'
-        'Public\Import-GraphOauthAccessToken.ps1'
-        'Public\Update-GraphOauthAccessToken.ps1'
-        #API
-        'Public\Invoke-GraphRequest.ps1'
-        #Azure AD
-        'Public\Get-AADUserByID.ps1'
-        'Public\Get-AADUserByUserPrincipalName.ps1'
-        'Public\Get-AADServicePrinicpalbyId.ps1'
-        'Public\Get-AADServicePrinicpalbyDisplayName.ps1'
-        'Public\Get-AADServicePrincipalAppRoleAssignedTo.ps1'
-        'Public\Remove-AADAppRoleAssignment.ps1'
-        'Public\Add-AADAppRoleAssignment.ps1'
-        'Public\Get-AADUserAppRoleAssignment.ps1'
-        'Public\Get-AADGroupById.ps1'
-        'Public\Get-AADGroupMembers.ps1'
-        'Public\Get-AADGroupByDisplayName.ps1'
-        'Public\Get-AADUserAll.ps1'
-    )
+    NestedModules = @('Public\Add-AADAppRoleAssignment.ps1','Public\Export-GraphApplication.ps1','Public\Export-GraphOauthAccessToken.ps1','Public\Get-AADGroupByDisplayName.ps1','Public\Get-AADGroupById.ps1','Public\Get-AADGroupMember.ps1','Public\Get-AADServicePrincipalAppRoleAssignedTo.ps1','Public\Get-AADServicePrinicpalbyDisplayName.ps1','Public\Get-AADServicePrinicpalbyId.ps1','Public\Get-AADUserAll.ps1','Public\Get-AADUserAppRoleAssignment.ps1','Public\Get-AADUserByID.ps1','Public\Get-AADUserByUserPrincipalName.ps1','Public\Get-GraphOauthAccessToken.ps1','Public\Get-GraphOauthAuthorizationCode.ps1','Public\Import-GraphApplication.ps1','Public\Import-GraphOauthAccessToken.ps1','Public\Invoke-GraphRequest.ps1','Public\New-GraphApplication.ps1','Public\New-GraphOauthAccessToken.ps1','Public\Remove-AADAppRoleAssignment.ps1','Public\Update-GraphOauthAccessToken.ps1')
 	
 	# Functions to export from this module
-    FunctionsToExport = @('Add-AADAppRoleAssignment','Export-GraphApplication','Export-GraphOauthAccessToken','Get-AADGroupByDisplayName','Get-AADGroupById','Get-AADGroupMembers','Get-AADServicePrincipalAppRoleAssignedTo','Get-AADServicePrinicpalbyDisplayName','Get-AADServicePrinicpalbyId','Get-AADUserAll','Get-AADUserAppRoleAssignment','Get-AADUserByID','Get-AADUserByUserPrincipalName','Get-GraphOauthAccessToken','Get-GraphOauthAuthorizationCode','Import-GraphApplication','Import-GraphOauthAccessToken','Invoke-GraphRequest','New-GraphApplication','New-GraphOauthAccessToken','Remove-AADAppRoleAssignment','Update-GraphOauthAccessToken')
+    FunctionsToExport = @('Add-AADAppRoleAssignment','Export-GraphApplication','Export-GraphOauthAccessToken','Get-AADGroupByDisplayName','Get-AADGroupByID','Get-AADGroupMember','Get-AADServicePrincipalAppRoleAssignedTo','Get-AADServicePrinicpalbyDisplayName','Get-AADServicePrinicpalbyId','Get-AADUserAll','Get-AADUserAppRoleAssignment','Get-AADUserByID','Get-AADUserByUserPrincipalName','Get-GraphOauthAccessToken','Get-GraphOauthAuthorizationCode','Import-GraphApplication','Import-GraphOauthAccessToken','Invoke-GraphRequest','New-GraphApplication','New-GraphOauthAccessToken','Remove-AADAppRoleAssignment','Update-GraphOauthAccessToken')
 	
 	# Cmdlets to export from this module
-	CmdletsToExport = '*' 
+	CmdletsToExport = @()
 	
 	# Variables to export from this module
-	VariablesToExport = '*'
+	VariablesToExport = @()
 	
 	# Aliases to export from this module
-	AliasesToExport = '*' #For performanace, list alias explicity
+	AliasesToExport = @('Get-AADGroupMembers') 
 	
 	# List of all modules packaged with this module
 	ModuleList = @()
@@ -156,12 +129,48 @@
 			# IconUri = ''
 			
 			# ReleaseNotes of this module
-			ReleaseNotes = 'Visit the project page on GitHub: https://github.com/markekraus/PSMSGraph'
+			ReleaseNotes = '# Version 1.0.26.43 (2017-04-30)
+## Functions
+### Get-AADGroupByDisplayName
+* Fix error message to say Group instead of uuser and actually put the group name in the error
+* ```Write-Error``` now includes original exception with error message
+
+### Get-AADGroupById
+* ```Write-Error``` now includes original exception with error message
+
+## Tests
+### Get-AADGroupByDisplayName.Unit.Tests.ps1
+* Added missing code coverage for ```Invoke-GrapRequest``` error handling
+* Now has 100% code coverage for ```Get-AADGroupByDisplayName```
+
+### Get-AADGroupById.Unit.Tests.ps1
+* Added missing code coverage for ```Invoke-GrapRequest``` error handling
+* Now has 100% code coverage for ```Get-AADGroupById```
+
+## Documentation
+### Get-AADGroupByDisplayName
+* Re-worded synopsis
+* Add more helpful description
+* Added clarity about the required reource for Access Tokens
+* Fix typo in ```APIVersion``` parameter
+* Corrected Output to reflect the correct object type
+* Added the following links:
+    + ```Get-GraphOauthAccessToken```
+    + MSDN AAD Graph Group Operations
+    + MSDN AAD Graph Filter parameter
+
+### Get-AADGroupById
+* Re-worded synopsis
+* Add more helpful description
+* Added clarity about the required reource for Access Tokens
+* Added clarity on what ObjectID is required
+* Fixed typo in ```APIVersion``` parameter
+* Added the following links:
+    + ```Get-GraphOauthAccessToken```
+    + MSDN AAD Graph Group Operations
+    + MSDN AAD Graph Filter parameter'
 			
 		} # End of PSData hashtable
 		
 	} # End of PrivateData hashtable
 }
-
-
-

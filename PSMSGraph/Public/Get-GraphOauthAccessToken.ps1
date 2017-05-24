@@ -3,8 +3,9 @@
 	===========================================================================
 	 Created with: 	SAPIEN Technologies, Inc., PowerShell Studio 2017 v5.4.135
 	 Created on:   	2/8/2017 10:26 AM
+     Edited on::    4/22/2017
 	 Created by:   	Mark Kraus
-	 Organization: 	Mitel
+	 Organization: 	
 	 Filename:     	Get-GraphOauthAccessToken.ps1
 	===========================================================================
 	.DESCRIPTION
@@ -16,7 +17,11 @@
         Retieves an OAuth Access Token from Microsoft
     
     .DESCRIPTION
-        A detailed description of the Get-GraphOauthAccessToken function.
+        Takes an OAuth Acces Authorization code returned from Get-GraphOauthAuthorizationCode and
+        requests an OAuth Access Token for the provided resource from Microsoft. A
+        MSGraphAPI.Oauth.AccessToken object is returned. This object is required for making calls
+        to Invoke-GraphRequest and many other functions provided by this module.
+
     
     .PARAMETER AuthenticationCode
         The Authentication Code returned from Get-GraphOauthAuthorizationCode
@@ -33,34 +38,52 @@
     
         You must set the resource to match the endpoints your token will be valid for.
 
-            Microsft Graph:              https://outlook.office.com
+            Microsft Graph:              https://graph.microsoft.com
             Azure AD Graph API:          https://graph.windows.net
             Office 365 Unified Mail API: https://outlook.office.com
         
-        If you need to access more than one resrouce, you will need to request multiple OAuth Access Tokens and use the correct tokens for the correct endpoints.
-    
-    .PARAMETER ResultVariable
-        Name of a varibale to store the result from the Invoke-WebRequest. This should be used for debugging only as it stores the access_token and refresh_tokens in memory as plain text.
-    
+        If you need to access more than one resrouce, you will need to request multiple OAuth Access 
+        Tokens and use the correct tokens for the correct endpoints.
+
     .EXAMPLE
+        PS C:\> $ClientCredential = Get-Credential
+        PS C:\> $Params = @{
+        Name = 'MyGraphApp'
+        Description = 'My Graph Application!'
+        ClientCredential = $ClientCredential
+        RedirectUri = 'https://adataum/ouath?'
+        UserAgent = 'Windows:PowerShell:GraphApplication'
+        }
+        PS C:\> $GraphApp = New-GraphApplication @Params
+        PS C:\> $GraphAuthCode = Get-GraphOauthAuthorizationCode -Application $GraphApp 
         PS C:\> $GraphAccessToken = Get-GraphOauthAccessToken -AuthenticationCode $GraphAuthCode
     
     .OUTPUTS
         MSGraphAPI.Oauth.AccessToken
     
     .NOTES
+        See Get-GraphOauthAuthorizationCode for obtaining a OAuth Authorization code.
         See Export-GraphOauthAccessToken for exporting Graph Acess Token Objects
         See Import-GraphOauthAccessToken for importing exported Graph AcessToken Objects
         See Update-GraphOauthAccessToken for refreshing the Graph Access Token
     
     .LINK
-        Export-GraphOauthAccessToken
-        Import-GraphOauthAccessToken
-        Update-GraphOauthAccessToken
+        http://psmsgraph.readthedocs.io/en/latest/functions/Get-GraphOauthAccessToken
+    .LINK
+        http://psmsgraph.readthedocs.io/en/latest/functions/Get-GraphOauthAuthorizationCode
+    .LINK
+        http://psmsgraph.readthedocs.io/en/latest/functions/Export-GraphOauthAccessToken
+    .LINK
+        http://psmsgraph.readthedocs.io/en/latest/functions/Import-GraphOauthAccessToken
+    .LINK
+        http://psmsgraph.readthedocs.io/en/latest/functions/Update-GraphOauthAccessToken
+    .LINK
+        https://graph.microsoft.io/en-us/docs/authorization/auth_overview
 #>
 function Get-GraphOauthAccessToken {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText","")]
     [CmdletBinding(ConfirmImpact = 'Low',
+                   HelpUri = 'http://psmsgraph.readthedocs.io/en/latest/functions/Get-GraphOauthAccessToken',
                    SupportsShouldProcess = $true)]
     [OutputType('MSGraphAPI.Oauth.AccessToken')]
     param
@@ -80,11 +103,7 @@ function Get-GraphOauthAccessToken {
         
         [Parameter(Mandatory = $false,
                    ValueFromPipelineByPropertyName = $true)]
-        [string]$Resource = 'https://graph.microsoft.com',
-        
-        [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$ResultVariable
+        [string]$Resource = 'https://graph.microsoft.com'
     )
     
     Process {
@@ -98,7 +117,7 @@ function Get-GraphOauthAccessToken {
         $AuthCode = [System.Web.HttpUtility]::UrlEncode($AuthenticationCode.GetAuthCode())
         $Body = @(
             'grant_type=authorization_code'
-            '&redirect_uri={0}&' -f $Redirect_uri
+            '&redirect_uri={0}' -f $Redirect_uri
             '&client_id={0}' -f $Client_Id
             '&code={0}' -f $AuthCode
             '&resource={0}' -f $Resource_encoded
@@ -118,29 +137,32 @@ function Get-GraphOauthAccessToken {
         try {
             Write-Verbose "Retrieving OAuth Access Token from $BaseURL..."
             $Result = Invoke-WebRequest @Params
-            if ($ResultVariable) {
-                Write-Verbose "Setting result variable '$ResultVariable'"
-                Set-Variable -Name $ResultVariable -Scope 'Global' -Value $Result
-            }
         }
         catch {
-            $ErrorMessage = $_.Exception.Message
-            $Message = "Requesting OAuth Access Token Failed: {0} " -f $ErrorMessage
-            Write-Error -Message $Message
+            $_.Exception.
+                psobject.
+                TypeNames.
+                Insert(0,'MSGraphAPI.Oauth.Exception')
+            Write-Error -Exception $_.Exception
             return
         }
         try {
             $Content = $Result.Content | ConvertFrom-Json -ErrorAction Stop
         }
         Catch {
-            $ErrorMessage = $_.Exception.Message
-            $Message = "Failed to convert response from JSON: {0}" -f $ErrorMessage
-            Write-Error $Message
-            Write-Error $Result.Content
+            $Params = @{
+                MemberType = 'NoteProperty'
+                Name = 'Respone' 
+                Value = $Result
+            }
+            $_.Exception | Add-Member @Params
+            Write-Error -Exception $_.Exception
             return
         }
-        $AccessTokenCredential = [pscredential]::new('access_token', $($Content.access_token | ConvertTo-SecureString -AsPlainText -Force))
-        $RefreshTokenCredential = [pscredential]::new('refresh_token', $($Content.refresh_token | ConvertTo-SecureString -AsPlainText -Force))
+        $SecureAccessToken = $Content.access_token | ConvertTo-SecureString -AsPlainText -Force
+        $SecureRefreshToken = $Content.refresh_token | ConvertTo-SecureString -AsPlainText -Force
+        $AccessTokenCredential = [pscredential]::new('access_token', $SecureAccessToken )
+        $RefreshTokenCredential = [pscredential]::new('refresh_token', $SecureRefreshToken)
         $Params = @{
             Application = $Application
             AccessTokenCredential = $AccessTokenCredential
@@ -150,7 +172,6 @@ function Get-GraphOauthAccessToken {
             ResponseHeaders = $Result.Headers
             LastRequestDate = $RequestedDate
             Session = $Session
-            #ResultObject = $Result
             GUID = [guid]::NewGuid()
         }
         New-GraphOauthAccessToken @Params

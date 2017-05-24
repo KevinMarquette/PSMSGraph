@@ -1,5 +1,34 @@
-site_name: PowerShell Module for the Microsoft Graph API
+site_name: PSMSGraph - PowerShell Module for the Microsoft Graph API
 repo_url: https://github.com/markekraus/PSMSGraph
+site_author: Mark Kraus
+edit_uri: edit/master/docs/
 theme: readthedocs
+copyright: "PSMSGraph is licensed under the <a href='https://github.com/markekraus/PSMSGraph/raw/master/LICENSE'>MIT license"
 pages:
-- Home: index.md
+  - Home: index.md
+  - Realse Notes: RELEASE.md
+  - Change Log: ChangeLog.md
+  - Functions:
+    - Add-AADAppRoleAssignment: functions/Add-AADAppRoleAssignment.md
+    - Export-GraphApplication: functions/Export-GraphApplication.md
+    - Export-GraphOauthAccessToken: functions/Export-GraphOauthAccessToken.md
+    - Get-AADGroupByDisplayName: functions/Get-AADGroupByDisplayName.md
+    - Get-AADGroupByID: functions/Get-AADGroupByID.md
+    - Get-AADGroupMember: functions/Get-AADGroupMember.md
+    - Get-AADServicePrincipalAppRoleAssignedTo: functions/Get-AADServicePrincipalAppRoleAssignedTo.md
+    - Get-AADServicePrinicpalbyDisplayName: functions/Get-AADServicePrinicpalbyDisplayName.md
+    - Get-AADServicePrinicpalbyId: functions/Get-AADServicePrinicpalbyId.md
+    - Get-AADUserAll: functions/Get-AADUserAll.md
+    - Get-AADUserAppRoleAssignment: functions/Get-AADUserAppRoleAssignment.md
+    - Get-AADUserByID: functions/Get-AADUserByID.md
+    - Get-AADUserByUserPrincipalName: functions/Get-AADUserByUserPrincipalName.md
+    - Get-GraphOauthAccessToken: functions/Get-GraphOauthAccessToken.md
+    - Get-GraphOauthAuthorizationCode: functions/Get-GraphOauthAuthorizationCode.md
+    - Import-GraphApplication: functions/Import-GraphApplication.md
+    - Import-GraphOauthAccessToken: functions/Import-GraphOauthAccessToken.md
+    - Invoke-GraphRequest: functions/Invoke-GraphRequest.md
+    - New-GraphApplication: functions/New-GraphApplication.md
+    - New-GraphOauthAccessToken: functions/New-GraphOauthAccessToken.md
+    - Remove-AADAppRoleAssignment: functions/Remove-AADAppRoleAssignment.md
+    - Update-GraphOauthAccessToken: functions/Update-GraphOauthAccessToken.md
+

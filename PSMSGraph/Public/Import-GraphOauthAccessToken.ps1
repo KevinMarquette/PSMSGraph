@@ -3,6 +3,7 @@
 	===========================================================================
 	 Created with: 	SAPIEN Technologies, Inc., PowerShell Studio 2017 v5.4.135
 	 Created on:   	2/9/2017 6:55 AM
+     Edited on:     3/30/2017
 	 Created by:   	Mark Kraus
 	 Organization: 	Mitel
 	 Filename:     	Import-GraphOauthAccessToken.ps1
@@ -32,15 +33,19 @@
         See Get-GraphOauthAccessToken for obtaining a Graph Access Token from the API
     
     .LINK
-        Export-GraphOauthAccessToken
-        Get-GraphOauthAccessToken
+        http://psmsgraph.readthedocs.io/en/latest/functions/Import-GraphOauthAccessToken
+    .LINK
+        http://psmsgraph.readthedocs.io/en/latest/functions/Export-GraphOauthAccessToken
+    .LINK
+        http://psmsgraph.readthedocs.io/en/latest/functions/Get-GraphOauthAccessToken
     
     .OUTPUTS
         MSGraphAPI.Oauth.AccessToken
 #>
-function Import-GraphOAuthAccessToken {
+function Import-GraphOauthAccessToken {
     [CmdletBinding(DefaultParameterSetName = 'Path',
                    ConfirmImpact = 'Low',
+                   HelpUri = 'http://psmsgraph.readthedocs.io/en/latest/functions/Import-GraphOAuthAccessToken',
                    SupportsShouldProcess = $true)]
     [OutputType('MSGraphAPI.Oauth.AccessToken')]
     param
@@ -73,8 +78,18 @@ function Import-GraphOAuthAccessToken {
                 Write-Verbose "Processing $($ImportFile)."
                 $Params = @{
                     "$($PsCmdlet.ParameterSetName)" = $ImportFile
+                    ErrorAction = 'Stop'
                 }
-                $InObject = Import-Clixml @Params
+                try {
+                    $InObject = Import-Clixml @Params
+                }
+                Catch {
+                    $ErrorMessage = "Unable to import from '{0}': {1}" -f @(
+                        $ImportFile
+                        $_.Exception.Message
+                    )
+                    Write-Error $ErrorMessage
+                }
                 Write-Verbose "Reconstituting Application object"
                 $Application = $InObject.Application | New-GraphApplication
                 Write-Verbose 'Reconstituting Session object'
